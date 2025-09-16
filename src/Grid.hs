@@ -50,8 +50,32 @@ safeRight (Grid z) = case Z.safeRight $ Z.focus z of
   Nothing -> Nothing
   Just _ -> Just $ Grid (Z.moveRight <$> z)
 
+safeDownN :: Int -> Grid a -> Maybe (Grid a)
+safeDownN 0 g = Just g
+safeDownN n g = safeDown g >>= safeDownN (n - 1)
+
+safeUpN :: Int -> Grid a -> Maybe (Grid a)
+safeUpN 0 g = Just g
+safeUpN n g = safeUp g >>= safeUpN (n - 1)
+
+safeLeftN :: Int -> Grid a -> Maybe (Grid a)
+safeLeftN 0 g = Just g
+safeLeftN n g = safeLeft g >>= safeLeftN (n - 1)
+
+safeRightN :: Int -> Grid a -> Maybe (Grid a)
+safeRightN 0 g = Just g
+safeRightN n g = safeRight g >>= safeRightN (n - 1)
+
 update :: (a -> a) -> Grid a -> Grid a
 update f (Grid z) = Grid $ Z.update (Z.update f) z
+
+safeUpdate :: Int -> Int -> (a -> a) -> Grid a -> Maybe (Grid a)
+safeUpdate r c f g = do
+  row <- safeDownN r g
+  col <- safeRightN c row
+  modified <- Just $ update f col
+  newCol <- safeLeftN c modified
+  safeUpN r newCol
 
 toLists :: Grid a -> [[a]]
 toLists (Grid z) = Z.toList $ Z.toList <$> z
