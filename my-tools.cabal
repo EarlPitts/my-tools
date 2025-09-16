@@ -14,9 +14,11 @@ library
     exposed-modules: 
         Zipper
       , Grid
+      , AoC.Utils
     build-depends:
         base ^>=4.19.2.0
       , comonad
+      , parsec
     hs-source-dirs:   src
     default-extensions: DeriveFunctor
     default-language: Haskell2010
