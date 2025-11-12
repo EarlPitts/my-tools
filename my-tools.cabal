@@ -17,7 +17,7 @@ library
       , KleisliEndo
       , AoC.Utils
     build-depends:
-        base ^>=4.19.2.0
+        base
       , comonad
       , parsec
     hs-source-dirs:   src
