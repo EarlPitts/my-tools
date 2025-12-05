@@ -1,6 +1,5 @@
 module AoC.Utils where
 
-import Data.Functor
 import Text.Parsec
 import Text.Parsec.String
 
@@ -20,6 +19,9 @@ iterateUntilM p f a = do
   if p a'
     then return [a']
     else (a' :) <$> iterateUntilM p f a'
+
+fixpoint :: (Eq a) => [a] -> a
+fixpoint (x : y : as) = if x == y then x else fixpoint (y : as)
 
 int :: Parser Int
 int = read <$> many1 digit
