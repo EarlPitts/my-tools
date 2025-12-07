@@ -4,6 +4,7 @@ import Text.Parsec
 import Text.Parsec.String
 
 readInput = readFile "input.txt"
+readExample = readFile "example.txt"
 
 readInputList = words <$> readFile "input.txt"
 
@@ -22,6 +23,12 @@ iterateUntilM p f a = do
 
 fixpoint :: (Eq a) => [a] -> a
 fixpoint (x : y : as) = if x == y then x else fixpoint (y : as)
+
+indexGrid :: [[a]] -> [[(Int, Int, a)]]
+indexGrid grid =
+  [ [(r, c, elem) | (c, elem) <- zip [0 ..] row]
+  | (r, row) <- zip [0 ..] grid
+  ]
 
 int :: Parser Int
 int = read <$> many1 digit
