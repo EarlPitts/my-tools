@@ -16,10 +16,19 @@ library
       , Grid
       , KleisliEndo
       , AoC.Utils
+      , EverybodyCodes.Utils
     build-depends:
         base
       , comonad
       , parsec
+      , aeson
+      , req
+      , lens
+      , lens-aeson
+      , text
+      , crypton
+      , bytestring
+      , memory
     hs-source-dirs:   src
     default-extensions: DeriveFunctor
     default-language: Haskell2010
