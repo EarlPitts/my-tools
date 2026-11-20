@@ -15,10 +15,10 @@ import Data.ByteArray.Encoding (Base (Base16), convertFromBase)
 import Data.ByteString (ByteString)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Text.Encoding (encodeUtf8)
+import Data.Text.Encoding (decodeUtf8', encodeUtf8)
 import Network.HTTP.Req
 
-getInput :: ByteString -> Int -> Int -> Int -> IO ByteString
+getInput :: ByteString -> Int -> Int -> Int -> IO Text
 getInput sessionCookie event day part = do
   let headers = (header "Cookie" sessionCookie)
       eventTxt = T.show event
@@ -30,7 +30,9 @@ getInput sessionCookie event day part = do
   let iv = T.take 16 keyStr
   case decryptCBC (encodeUtf8 keyStr) (encodeUtf8 iv) (encodeUtf8 cipher) of
     Left e -> fail $ "Couldn't decrypt: " <> e
-    Right output -> pure output
+    Right output -> case decodeUtf8' output of
+      Left e -> fail $ "Couldn't decode: " <> show e
+      Right txt -> pure txt
 
 sendReq :: Option Https -> Url Https -> IO (JsonResponse Value)
 sendReq headers url =
