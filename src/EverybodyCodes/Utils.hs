@@ -1,7 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module EverybodyCodes.Utils (getInput) where
+module EverybodyCodes.Utils (
+  getInput,
+  getCookie,
+) where
 
 import Control.Lens
 import Crypto.Cipher.AES (AES256)
@@ -13,6 +16,7 @@ import Data.Aeson.Lens (key, _Integer, _String)
 import Data.Aeson.Types
 import Data.ByteArray.Encoding (Base (Base16), convertFromBase)
 import Data.ByteString (ByteString)
+import qualified Data.ByteString as BS
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
@@ -63,3 +67,6 @@ decryptCBC key ivBytes b16 = do
   iv <- maybe (Left "invalid IV") Right (makeIV ivBytes)
   maybe (Left "invalid padding") Right $
     unpad (PKCS7 16) (cbcDecrypt (cipher :: AES256) iv ciphertext)
+
+getCookie :: IO ByteString
+getCookie = BS.readFile "cookie.txt"
