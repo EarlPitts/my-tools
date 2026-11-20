@@ -4,16 +4,17 @@
 module EverybodyCodes.Utils (
   getInput,
   getCookie,
+  checkAnswer,
 ) where
 
-import Control.Lens
+import Control.Lens hiding ((.=))
 import Crypto.Cipher.AES (AES256)
 import Crypto.Cipher.Types (BlockCipher (..), Cipher (..), makeIV)
 import Crypto.Data.Padding (Format (PKCS7), unpad)
 import Crypto.Error (CryptoFailable, eitherCryptoError)
 import qualified Data.Aeson.Key as K
 import Data.Aeson.Lens (key, _Integer, _String)
-import Data.Aeson.Types
+import Data.Aeson.Types hiding (Result)
 import Data.ByteArray.Encoding (Base (Base16), convertFromBase)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
@@ -72,3 +73,31 @@ decryptCBC key ivBytes b16 = do
 
 getCookie :: IO ByteString
 getCookie = BC.strip <$> BS.readFile "cookie.txt"
+
+data Result
+  = Correct
+  | Incorect {rFirstCorrect :: Bool, rLengthCorrect :: Bool, rPenaltyLeft :: Int}
+  deriving (Show, Eq)
+
+instance FromJSON Result where
+  parseJSON = withObject "Result" $ \v -> do
+    isCorrect <- v .: "correct"
+    if isCorrect
+      then pure Correct
+      else
+        Incorect
+          <$> v .: "firstCorrect"
+          <*> v .: "lengthCorrect"
+          <*> v .: "penaltyLeftMs"
+
+checkAnswer :: Int -> Int -> Int -> Text -> IO Result
+checkAnswer event day part answer = do
+  sessionCookie <- getCookie
+  let headers = (header "Cookie" sessionCookie)
+      eventTxt = T.show event
+      dayTxt = T.show day
+      partTxt = T.show part
+      url = https "api.everybody.codes" /: "event" /: eventTxt /: "quest" /: dayTxt /: "part" /: partTxt /: "answer"
+      body = ReqBodyJson (object ["answer" .= answer])
+  resp <- runReq defaultHttpConfig $ req POST url body jsonResponse headers
+  pure (responseBody resp)
