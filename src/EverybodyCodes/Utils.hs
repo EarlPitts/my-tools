@@ -17,6 +17,7 @@ import Data.Aeson.Types
 import Data.ByteArray.Encoding (Base (Base16), convertFromBase)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BC
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
@@ -70,4 +71,4 @@ decryptCBC key ivBytes b16 = do
     unpad (PKCS7 16) (cbcDecrypt (cipher :: AES256) iv ciphertext)
 
 getCookie :: IO ByteString
-getCookie = BS.readFile "cookie.txt"
+getCookie = BC.strip <$> BS.readFile "cookie.txt"
