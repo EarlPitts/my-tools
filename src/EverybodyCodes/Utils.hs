@@ -22,8 +22,9 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
 import Network.HTTP.Req
 
-getInput :: ByteString -> Int -> Int -> Int -> IO Text
-getInput sessionCookie event day part = do
+getInput :: Int -> Int -> Int -> IO Text
+getInput event day part = do
+  sessionCookie <- getCookie
   let headers = (header "Cookie" sessionCookie)
       eventTxt = T.show event
       dayTxt = T.show day
